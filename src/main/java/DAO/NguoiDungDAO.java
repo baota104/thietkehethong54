@@ -1,0 +1,113 @@
+package DAO;
+
+import model.NguoiDung;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.UUID;
+
+public class NguoiDungDAO extends DAO {
+
+    public NguoiDungDAO() {
+        super();
+    }
+
+    //  Đăng ký tài khoản mới
+    public boolean DangKiMoi(NguoiDung n) {
+        String insertNguoiDung = "INSERT INTO NguoiDung(id, ten, email, sdt, matkhau, ghichu, ngaysinh, vaitro) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String insertKhachHang = "INSERT INTO tblKhachHang(NguoiDungid, diemtichluy) VALUES (?, 0)";
+        String insertGioHang = "INSERT INTO tblGioHang(id, tongsanpham, KhachHangid) VALUES (?, 0, ?)";
+        String insertSanPhamYeu = "INSERT INTO tblSanPhamYeuThich(id, tongsanpham) VALUES (?, 0)";
+
+        try {
+            con.setAutoCommit(false); //  Bắt đầu transaction
+
+            // 1️ Thêm người dùng
+            PreparedStatement psUser = con.prepareStatement(insertNguoiDung);
+            psUser.setString(1, n.getId());
+            psUser.setString(2, n.getTen());
+            psUser.setString(3, n.getEmail());
+            psUser.setString(4, n.getSdt());
+            psUser.setString(5, n.getPassword());
+            psUser.setString(6, n.getGhichu());
+            psUser.setDate(7, n.getNgaysinh());
+            psUser.setString(8, n.getVaitro());
+            psUser.executeUpdate();
+
+            // 2️ Thêm khách hàng
+            PreparedStatement psKH = con.prepareStatement(insertKhachHang);
+            psKH.setString(1, n.getId());
+            psKH.executeUpdate();
+
+            // 3️ Tạo giỏ hàng
+            String gioHangId = UUID.randomUUID().toString();
+            PreparedStatement psGH = con.prepareStatement(insertGioHang);
+            psGH.setString(1, gioHangId);
+            psGH.setString(2, n.getId());
+            psGH.executeUpdate();
+
+            // 4️ Tạo danh sách sản phẩm yêu thích
+            String yeuThichId = UUID.randomUUID().toString();
+            PreparedStatement psYT = con.prepareStatement(insertSanPhamYeu);
+            psYT.setString(1, yeuThichId);
+            psYT.executeUpdate();
+
+            con.commit(); //  Commit toàn bộ transaction
+            System.out.println("Tạo người dùng, khách hàng, giỏ hàng, yêu thích thành công!");
+            return true;
+
+        } catch (SQLException e) {
+            try {
+                con.rollback(); //  Hủy nếu có lỗi
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //  Kiểm tra trùng email hoặc sđt
+    public boolean tonTaiNguoiDung(String email, String sdt) {
+        String sql = "SELECT * FROM NguoiDung WHERE email = ? OR sdt = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, sdt);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
+    //  Kiểm tra đăng nhập
+    public NguoiDung DangNhap(String sdt, String matkhau) {
+        String sql = "SELECT * FROM NguoiDung WHERE sdt = ? AND matkhau = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, sdt);
+            ps.setString(2, matkhau);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                NguoiDung nd = new NguoiDung();
+                nd.setId(rs.getString("id"));
+                nd.setTen(rs.getString("ten"));
+                nd.setEmail(rs.getString("email"));
+                nd.setSdt(rs.getString("sdt"));
+                nd.setPassword(rs.getString("matkhau"));
+                nd.setVaitro(rs.getString("vaitro"));
+                return nd;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
