@@ -1,9 +1,9 @@
 <%@ page import="DAO.GioHangDAO, model.GioHangChiTiet, model.NguoiDung" %>
+<%@ page import="model.KhachHang" %>
 
 <%
     request.setCharacterEncoding("UTF-8");
-    NguoiDung user = (NguoiDung) session.getAttribute("user");
-
+    KhachHang user = (KhachHang) session.getAttribute("khachhang");
     GioHangDAO dao = new GioHangDAO();
     String action = request.getParameter("action");
 
@@ -24,5 +24,5 @@
 
     // Sau khi xử lý, load lại danh sách sản phẩm
     request.setAttribute("cartItems", dao.getSPGioHang(user.getId()));
-    request.getRequestDispatcher("giohang.jsp").forward(request, response);
+    request.getRequestDispatcher("GDGioHang.jsp").forward(request, response);
 %>

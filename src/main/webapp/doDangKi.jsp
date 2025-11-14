@@ -25,7 +25,7 @@
     message = "Tên không được để trống!";
   } else if (!matkhau.equals(matkhau2)) {
     message = "Mật khẩu nhập lại không khớp!";
-  } else if (dao.tonTaiNguoiDung(email, sdt)) {
+  } else if (dao.CheckTonTai(email, sdt)) {
     message = "Email hoặc số điện thoại đã tồn tại!";
   } else {
     // parse ngày sinh an toàn

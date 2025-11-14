@@ -21,10 +21,8 @@
 <div class="box">
   <h2>Thông báo</h2>
   <p><%= request.getAttribute("thongbao") %></p>
-
-  <a href="login.jsp">Quay lại đăng nhập</a> |
+  <a href="GDDangNhap.jsp">Quay lại đăng nhập</a> |
   <a href="GDDangKi.jsp">Đăng ký lại</a> |
-  <a href="giaodienchinh.jsp">Trang chủ</a>
 </div>
 </body>
 </html>

@@ -13,6 +13,9 @@ public class GioHangChiTiet {
         this.soluong = soluong;
         this.sanPham = sanPham;
     }
+    public GioHangChiTiet(){
+
+    }
 
     public String getId() {
         return id;

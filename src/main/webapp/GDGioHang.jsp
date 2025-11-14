@@ -1,16 +1,20 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.*, model.GioHangChiTiet, model.SanPham, model.NguoiDung" %>
+<%@ page import="java.util.*" %>
+<%@ page import="DAO.GioHangDAO" %>
+<%@ page import="model.*" %>
 
 <%
-
-    List<GioHangChiTiet> list = (List<GioHangChiTiet>) request.getAttribute("cartItems");
+    KhachHang kh = (KhachHang) session.getAttribute("khachhang");
+    GioHangDAO gioHangDAO = new GioHangDAO();
+    GioHang giohang = gioHangDAO.getSPGioHang(kh.getGhid());
     float tongGiaTri = 0;
-    if (list != null) {
-        for (GioHangChiTiet item : list) {
+    if (giohang.getGioHangChiTiet() != null) {
+        for (GioHangChiTiet item : giohang.getGioHangChiTiet()) {
             tongGiaTri += item.getGiaban() * item.getSoluong();
         }
     }
-%>
+    session.setAttribute("giohang",giohang);
+%>``
 
 <html>
 <head>
@@ -39,8 +43,8 @@
     <div class="cart-items">
         <h3>Thông tin đơn hàng:</h3>
 
-        <% if (list != null && !list.isEmpty()) {
-            for (GioHangChiTiet item : list) {
+        <% if (giohang != null && !giohang.getGioHangChiTiet().isEmpty()) {
+            for (GioHangChiTiet item : giohang.getGioHangChiTiet()) {
                 SanPham sp = item.getSanPham();
         %>
         <div class="item">

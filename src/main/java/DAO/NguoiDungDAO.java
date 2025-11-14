@@ -1,5 +1,6 @@
 package DAO;
 
+import model.KhachHang;
 import model.NguoiDung;
 
 import java.sql.PreparedStatement;
@@ -75,7 +76,7 @@ public class NguoiDungDAO extends DAO {
     }
 
     //  Kiểm tra trùng email hoặc sđt
-    public boolean tonTaiNguoiDung(String email, String sdt) {
+    public boolean CheckTonTai(String email, String sdt) {
         String sql = "SELECT * FROM NguoiDung WHERE email = ? OR sdt = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, email);
@@ -88,26 +89,30 @@ public class NguoiDungDAO extends DAO {
         }
     }
     //  Kiểm tra đăng nhập
-    public NguoiDung DangNhap(String sdt, String matkhau) {
+    public boolean DangNhap(NguoiDung nd) {
         String sql = "SELECT * FROM NguoiDung WHERE sdt = ? AND matkhau = ?";
+        boolean result = false;
         try {
             PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, sdt);
-            ps.setString(2, matkhau);
+            ps.setString(1, nd.getSdt());
+            ps.setString(2, nd.getPassword());
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                NguoiDung nd = new NguoiDung();
+            while (rs.next()) {
                 nd.setId(rs.getString("id"));
                 nd.setTen(rs.getString("ten"));
                 nd.setEmail(rs.getString("email"));
                 nd.setSdt(rs.getString("sdt"));
                 nd.setPassword(rs.getString("matkhau"));
+                nd.setGhichu(rs.getString("ghichu"));
+                nd.setNgaysinh(rs.getDate("ngaysinh"));
                 nd.setVaitro(rs.getString("vaitro"));
-                return nd;
+                result = true;
             }
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return null;
     }
+
 }

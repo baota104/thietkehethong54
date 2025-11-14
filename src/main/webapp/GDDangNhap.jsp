@@ -3,7 +3,7 @@
 <head><title>Đăng nhập</title></head>
 <body>
 <h2>Đăng nhập</h2>
-<form action="dologin.jsp" method="post">
+<form action="doDangNhap.jsp" method="post">
     <label>Số điện thoại:</label>
     <input type="text" name="sdt" required><br><br>
 

@@ -16,7 +16,9 @@ public class GioHang {
     public String getId() {
         return id;
     }
+    public GioHang(){
 
+    }
     public void setId(String id) {
         this.id = id;
     }

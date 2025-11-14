@@ -1,35 +1,72 @@
 package DAO;
 
 import model.KhachHang;
-import model.NguoiDung;
+import java.sql.*;
+import java.util.List;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+public class KhachHangDAO extends DAO {
+    private DiaChiDAO diaChiDAO = new DiaChiDAO();
 
-public class KhachHangDAO extends DAO{
     public KhachHangDAO() {
         super();
     }
-//    public KhachHang getTTKhachHang(String id){
-//        String sql = "SELECT * FROM tblKhachHang WHERE id = ?";
-//        try {
-//            PreparedStatement ps = con.prepareStatement(sql);
-//            ps.setString(1, id);
-//            ResultSet rs = ps.executeQuery();
-//            if (rs.next()) {
-//                KhachHang kh = new KhachHang(rs.getString("NguoiDungid"),)
-//                NguoiDung nd = new NguoiDung();
-//                nd.setId(rs.getString("id"));
-//                nd.setTen(rs.getString("ten"));
-//                nd.setEmail(rs.getString("email"));
-//                nd.setSdt(rs.getString("sdt"));
-//                nd.setPassword(rs.getString("matkhau"));
-//                nd.setVaitro(rs.getString("vaitro"));
-//                return nd;
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
+
+    /**
+     * Lấy thông tin khách hàng (JOIN NguoiDung + tblKhachHang)
+     */
+    public KhachHang getTTKhachHang(String idNguoiDung) {
+        String sql = """
+            SELECT nd.*, kh.diemtichluy
+            FROM NguoiDung nd
+            JOIN tblKhachHang kh ON nd.id = kh.NguoiDungid
+            WHERE nd.id = ?
+        """;
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, idNguoiDung);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                KhachHang kh = new KhachHang(
+                        rs.getString("id"),
+                        rs.getString("vaitro"),
+                        rs.getString("ten"),
+                        rs.getString("sdt"),
+                        rs.getString("email"),
+                        rs.getString("matkhau"),
+                        rs.getString("ghichu"),
+                        rs.getDate("ngaysinh"),
+                        rs.getInt("diemtichluy")
+                );
+
+                kh.setDiachiList(diaChiDAO.getDiaChi(idNguoiDung));
+                kh.setGhid(getIDGH(idNguoiDung));
+                return kh;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public String getIDGH(String id){
+        try {
+            // 1️ Kiểm tra giỏ hàng của khách có chưa
+            String gioHangId = null;
+            String sqlCheckCart = "SELECT id FROM tblGioHang WHERE KhachHangid = ?";
+            PreparedStatement ps1 = con.prepareStatement(sqlCheckCart);
+            ps1.setString(1, id);
+            ResultSet rs1 = ps1.executeQuery();
+
+            if (rs1.next()) {
+                gioHangId = rs1.getString("id");
+                return gioHangId;
+            } else {
+                return gioHangId;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
