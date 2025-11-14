@@ -1,10 +1,21 @@
 package model;
 
 public class Diachi {
-    private String id,diachichitiet;
+    private String id,diachichitiet,idkh;
+
+    public Diachi() {
+    }
 
     public String getId() {
         return id;
+    }
+
+    public String getIdkh() {
+        return idkh;
+    }
+
+    public void setIdkh(String idkh) {
+        this.idkh = idkh;
     }
 
     public void setId(String id) {

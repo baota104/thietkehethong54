@@ -16,6 +16,9 @@ public class ThanhToan {
         this.ngaythanhtoan = ngaythanhtoan;
         this.tongtien = tongtien;
     }
+    public ThanhToan(){
+
+    }
 
     public String getId() {
         return id;

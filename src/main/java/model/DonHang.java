@@ -4,7 +4,7 @@ import java.sql.Date;
 import java.util.List;
 
 public class DonHang {
-    private String id,trangthai,ghichu;
+    private String id,trangthai,ghichu,DiaChiGiaoHang;
     private Date thoigiandukiengiao,ngaydat;
     private float tongtien,ship,tongkhuyenmai;
     private List<DonHangChiTiet> listdonhang;
@@ -25,6 +25,17 @@ public class DonHang {
         this.khachHang = khachHang;
         this.nhanVien = nhanVien;
         this.maGiamGia = maGiamGia;
+    }
+    public DonHang(){
+
+    }
+
+    public String getDiaChiGiaoHang() {
+        return DiaChiGiaoHang;
+    }
+
+    public void setDiaChiGiaoHang(String diaChiGiaoHang) {
+        DiaChiGiaoHang = diaChiGiaoHang;
     }
 
     public String getId() {

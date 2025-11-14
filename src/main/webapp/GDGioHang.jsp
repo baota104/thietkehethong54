@@ -81,7 +81,9 @@
         <h3>Chi tiết đơn hàng:</h3>
         <p><strong>Tổng giá trị:</strong> <%= tongGiaTri %> đ</p>
         <p><strong>Tổng thanh toán:</strong> <%= tongGiaTri %> đ</p>
-        <button class="checkout">Thanh toán</button>
+        <a href="GDThanhToan.jsp">
+            <button style="background-color: #ef4444;">Thanh Toán</button>
+        </a>
     </div>
 </div>
 </body>

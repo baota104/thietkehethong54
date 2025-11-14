@@ -12,6 +12,9 @@ public class HoaDon {
         this.thanhtoan = thanhtoan;
         this.donHang = donHang;
     }
+    public HoaDon(){
+
+    }
 
     public String getId() {
         return id;
