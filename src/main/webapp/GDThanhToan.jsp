@@ -25,33 +25,35 @@
     String tenGiaoHang = request.getParameter("ten") != null ? request.getParameter("ten") : kh.getTen();
     String emailGiaoHang = request.getParameter("email") != null ? request.getParameter("email") : kh.getEmail();
     String hinhThucNhanHang = request.getParameter("hinhThucNhanHang") != null ? request.getParameter("hinhThucNhanHang") : "Giao tới nhà";
-    String diaChiGiaoHang = request.getParameter("diaChi") != null ? request.getParameter("diaChi") : "";
     String hinhThucThanhToan = request.getParameter("hinhThucThanhToan") != null ? request.getParameter("hinhThucThanhToan") : "Chuyển khoản qua ngân hàng";
     String diaChiMoi = request.getParameter("diaChiMoi") != null ? request.getParameter("diaChiMoi") : "";
 
-    // Xử lý thêm địa chỉ mới nếu có
-    if (request.getParameter("themDiaChi") != null && !diaChiMoi.isEmpty()) {
-        // Gọi DAO để thêm địa chỉ mới
-        DiaChiDAO diaChiDAO = new DiaChiDAO();
-        Diachi diaChiMoiObj = new Diachi();
+    // --- Bổ sung logic (từ đầu file) để lấy địa chỉ mới ---
+    // (Đoạn này cần đặt ở đầu file GDThanhToan.jsp, nhưng tôi đưa vào đây để bạn thấy logic)
 
-        diaChiMoiObj.setIdkh(kh.getId());
-        diaChiMoiObj.setId("DC_"+UUID.randomUUID());
-        diaChiMoiObj.setDiachichitiet(diaChiMoi);
-        boolean themThanhCong = diaChiDAO.themDiaChi(diaChiMoiObj);
+    // Lấy ID địa chỉ mới nếu vừa được thêm từ doThemDiaChi.jsp
+    String newAddressId = request.getParameter("newAddressId");
 
-        if (themThanhCong) {
-            // Cập nhật lại danh sách địa chỉ
-            kh.setDiachiList(diaChiDAO.getDiaChi(kh.getGhid()));
-            session.setAttribute("khachhang", kh);
-            diaChiGiaoHang = diaChiMoi; // Set địa chỉ mới làm địa chỉ giao hàng
+    // Lấy địa chỉ đang được chọn (nếu có)
+    String diaChiGiaoHang = request.getParameter("diaChi") != null ? request.getParameter("diaChi") : "";
+
+    // Tự động chọn địa chỉ mới
+    if (newAddressId != null && !newAddressId.isEmpty()) {
+        if (kh.getDiachiList() != null) {
+            for (Diachi dc : kh.getDiachiList()) {
+                if (dc.getId().equals(newAddressId)) {
+                    diaChiGiaoHang = dc.getDiachichitiet();
+                    break;
+                }
+            }
         }
     }
-
-    // Nếu chưa có địa chỉ từ parameter, lấy từ danh sách địa chỉ của khách hàng
-    if (diaChiGiaoHang.isEmpty() && kh.getDiachiList() != null && !kh.getDiachiList().isEmpty()) {
+    // Nếu vẫn rỗng, lấy địa chỉ đầu tiên
+    else if (diaChiGiaoHang.isEmpty() && kh.getDiachiList() != null && !kh.getDiachiList().isEmpty()) {
         diaChiGiaoHang = kh.getDiachiList().get(0).getDiachichitiet();
     }
+    // Cập nhật lại hidden input (quan trọng)
+    request.setAttribute("diaChiGiaoHang", diaChiGiaoHang);
 
     // Tạo đối tượng DonHang và lưu vào session
     KhachHang kh1 = new KhachHang();
@@ -311,16 +313,17 @@
 
         function updateAddress() {
             var addressSelect = document.getElementById('addressSelect');
-            if (addressSelect.value !== 'new') {
+
+            if (addressSelect.value === 'new') {
+                // Logic Mới: Chuyển hướng sang trang thêm địa chỉ
+                window.location.href = 'GDThemDiaChi.jsp';
+            } else {
+                // Logic Cũ: Cập nhật hidden input
                 selectedAddress = addressSelect.options[addressSelect.selectedIndex].text;
                 document.getElementById('hiddenAddress').value = selectedAddress;
-                showNewAddressForm = false;
-                document.getElementById('newAddressSection').style.display = 'none';
-            } else {
-                // Người dùng chọn "Thêm địa chỉ mới"
-                showNewAddressForm = true;
-                document.getElementById('newAddressSection').style.display = 'block';
-                document.getElementById('hiddenAddress').value = '';
+
+                // (Tùy chọn) Tự động submit form để cập nhật địa chỉ hiển thị
+                // document.getElementById('mainForm').submit();
             }
         }
 
@@ -433,40 +436,59 @@
                         <label class="info-label">Địa chỉ giao hàng</label>
 
                         <% if (kh.getDiachiList() != null && !kh.getDiachiList().isEmpty()) { %>
+
+                        <!-- Hiển thị địa chỉ đang được chọn -->
                         <div style="padding: 10px; background: #f9fafb; border-radius: 6px; margin-bottom: 10px;">
                             <%= diaChiGiaoHang.isEmpty() ? "Chưa chọn địa chỉ" : diaChiGiaoHang %>
                         </div>
+
+                        <!-- Dropdown chọn địa chỉ -->
                         <select id="addressSelect" class="address-select" onchange="updateAddress()">
                             <option value="">Chọn địa chỉ</option>
-                            <% for (Diachi dc : kh.getDiachiList()) {
-                                boolean selected = dc.getDiachichitiet().equals(diaChiGiaoHang);
+                            <%
+                                String selectedId = "";
+
+                                // Tìm ID của địa chỉ đang được chọn (ưu tiên newAddressId)
+                                if (newAddressId != null) {
+                                    selectedId = newAddressId;
+                                } else if (!diaChiGiaoHang.isEmpty()) {
+                                    for (Diachi dc_check : kh.getDiachiList()) {
+                                        if (dc_check.getDiachichitiet().equals(diaChiGiaoHang)) {
+                                            selectedId = dc_check.getId();
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // Hiển thị danh sách địa chỉ
+                                for (Diachi dc : kh.getDiachiList()) {
+                                    boolean selected = dc.getId().equals(selectedId);
                             %>
                             <option value="<%= dc.getId() %>" <%= selected ? "selected" : "" %>>
                                 <%= dc.getDiachichitiet() %>
                             </option>
                             <% } %>
+
+                            <!-- Tùy chọn để chuyển hướng sang trang thêm mới -->
                             <option value="new">+ Thêm địa chỉ mới</option>
                         </select>
+
                         <% } else { %>
+                        <!-- Thông báo nếu chưa có địa chỉ nào -->
                         <div class="no-address-message">
-                            Bạn chưa có địa chỉ nào. Vui lòng thêm địa chỉ mới.
+                            Bạn chưa có địa chỉ nào.
                         </div>
                         <% } %>
 
-                        <!-- Nút thêm địa chỉ mới (luôn hiển thị) -->
-                        <button type="button" class="btn-add-address" onclick="toggleNewAddressForm()">
+                        <!-- Nút thêm địa chỉ mới (luôn hiển thị, chuyển hướng trực tiếp) -->
+                        <a href="GDThemDiaChi.jsp" class="btn-add-address" style="text-decoration: none; display: inline-block; margin-top: 10px;">
                             + Thêm Địa Chỉ Mới
-                        </button>
+                        </a>
 
-                        <!-- Form thêm địa chỉ mới -->
-                        <div id="newAddressSection" class="new-address-section" style="display: none;">
-                            <label class="info-label">Địa chỉ mới</label>
-                            <input type="text" class="info-input" name="diaChiMoi" value="<%= diaChiMoi %>"
-                                   placeholder="Nhập địa chỉ mới (số nhà, đường, phường, quận, thành phố)">
-                            <div style="margin-top: 10px; font-size: 0.9em; color: #6b7280;">
-                                Ví dụ: 123 Nguyễn Văn Linh, Phường Bình Thuận, Quận 7, TP.HCM
-                            </div>
-                        </div>
+                        <!--
+                            XÓA BỎ <div id="newAddressSection" ...>
+                            (Form tại chỗ đã bị xóa bỏ)
+                        -->
                     </div>
                 </div>
 
