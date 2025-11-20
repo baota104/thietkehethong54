@@ -6,7 +6,9 @@
 <%
     KhachHang kh = (KhachHang) session.getAttribute("khachhang");
     GioHangDAO gioHangDAO = new GioHangDAO();
-    GioHang giohang = gioHangDAO.getSPGioHang(kh.getGhid());
+    GioHang giohang = new GioHang();
+    giohang.setId(kh.getId());
+    giohang = gioHangDAO.getSPGioHang(kh.getGioHang().getId());
     float tongGiaTri = 0;
     if (giohang.getGioHangChiTiet() != null) {
         for (GioHangChiTiet item : giohang.getGioHangChiTiet()) {

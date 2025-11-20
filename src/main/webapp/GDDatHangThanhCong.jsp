@@ -1,19 +1,16 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.*, model.*" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <%
     // 1. KIỂM TRA TÍNH HỢP LỆ CỦA TRANG
     String status = request.getParameter("status");
-    String maHoaDon = request.getParameter("mahoadon");
     HoaDon hoaDon = (HoaDon) session.getAttribute("hoadon");
 
-    // Nếu không phải trạng thái "success", hoặc session "hoadon" không tồn tại
-    // (ví dụ: người dùng refresh trang), thì chuyển về trang chủ.
     if (!"success".equals(status) || hoaDon == null) {
         response.sendRedirect("GDChinhKhachHang.jsp");
         return;
     }
 
-    // 2. LẤY THÔNG TIN CHI TIẾT TỪ SESSION
     DonHang donHang = hoaDon.getDonHang();
     ThanhToan thanhToan = hoaDon.getThanhtoan();
     List<DonHangChiTiet> chiTietList = donHang.getListdonhang();
@@ -96,10 +93,16 @@
             font-size: 0.9em;
             color: #6b7280;
         }
-        .btn-home {
+
+        /* CSS CHO NHÓM NÚT */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .btn {
             padding: 15px 30px;
-            background: #3b82f6;
-            color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -108,8 +111,19 @@
             text-decoration: none;
             transition: background-color 0.3s;
         }
+        .btn-home {
+            background: #3b82f6;
+            color: white;
+        }
         .btn-home:hover {
             background: #2563eb;
+        }
+        .btn-cancel {
+            background: #ef4444; /* Màu đỏ */
+            color: white;
+        }
+        .btn-cancel:hover {
+            background: #dc2626;
         }
     </style>
 </head>
@@ -178,16 +192,29 @@
                 <%= donHang.getDiaChiGiaoHang() %>
             </span>
         </div>
-
+        <%
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm 'ngày' dd/MM/yyyy");
+            String thoiGianGiaoDuKien = sdf.format(donHang.getThoigiandukiengiao());
+        %>
+        <div class="detail-row">
+            <span class="detail-label">Thời gian giao dự kiến:</span>
+            <span class="detail-value" style="color: #059669; font-weight: bold;">
+                <%= thoiGianGiaoDuKien %>
+            </span>
+        </div>
     </div>
 
-    <a href="GDChinhKhachHang.jsp" class="btn-home">Quay về Trang chủ</a>
+    <!-- KHỐI NÚT ĐÃ SỬA THEO YÊU CẦU CỦA BẠN -->
+    <div class="btn-group">
+        <!-- Nút Quay về (Trỏ trực tiếp, không cần 'do' file) -->
+        <a href="GDChinhKhachHang.jsp" class="btn btn-home">Quay về Trang chủ</a>
+
+        <!-- Nút Hủy Đơn Hàng (Gọi doHuyDon.jsp) -->
+        <form method="post" action="doHuyDon.jsp" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này? Tồn kho sẽ được hoàn trả.');">
+            <button type="submit" class="btn btn-cancel">Hủy Đơn Hàng</button>
+        </form>
+    </div>
 </div>
 
-<%
-    // 4. XÓA SESSION SAU KHI HIỂN THỊ
-    // Điều này ngăn người dùng thấy lại trang này nếu họ nhấn F5 (Refresh)
-    session.removeAttribute("hoadon");
-%>
 </body>
 </html>

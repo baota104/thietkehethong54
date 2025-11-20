@@ -23,7 +23,7 @@ public class HoaDonDAO extends DAO{
 
         String sqlInsertDonHang = "INSERT INTO tblDonHang (id, ngaydathang, trangthai, giamgia, ghichu, thoigiandukien, phiShip, diachigiaohang, MaGiamGiaid, NhanVienid, KhachHangid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String sqlInsertChiTiet = "INSERT INTO tblDonHangChiTiet (id, soluong, gia, SanPhamid, DonHangid) VALUES (?, ?, ?, ?, ?)";
-        String sqlInsertHoaDon = "INSERT INTO tblHoaDon (ngaythanhtoan, tongthanhtoan, phuongthucthanhtoan, maQR, ghichu, DonHangid) VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlInsertHoaDon = "INSERT INTO tblHoaDon (ngaythanhtoan, tongthanhtoan, phuongthucthanhtoan, maQR, ghichu, DonHangid,ttthanhtoan) VALUES (?, ?, ?, ?, ?, ?,?)";
 
         String sqlCheckStock = "SELECT tonkho FROM tblSanPham WHERE id = ? FOR UPDATE"; // Khóa dòng để kiểm tra
         String sqlUpdateStock = "UPDATE tblSanPham SET tonkho = tonkho - ? WHERE id = ?";
@@ -61,7 +61,7 @@ public class HoaDonDAO extends DAO{
             psDonHang.setString(3, donHang.getTrangthai());
             psDonHang.setFloat(4, donHang.getTongkhuyenmai()); // giamgia
             psDonHang.setString(5, donHang.getGhichu());
-            psDonHang.setDate(6, null); // thoigiandukien (có thể null)
+            psDonHang.setTimestamp(6, new java.sql.Timestamp(donHang.getThoigiandukiengiao().getTime()));
             psDonHang.setFloat(7, donHang.getShip());
             psDonHang.setString(8, donHang.getDiaChiGiaoHang());
             psDonHang.setString(9, (donHang.getMaGiamGia() != null ? donHang.getMaGiamGia().getId() : null));
@@ -95,6 +95,7 @@ public class HoaDonDAO extends DAO{
             psHoaDon.setString(4, thanhToan.getQR()); // maQR (có thể null)
             psHoaDon.setString(5, thanhToan.getGhichu());
             psHoaDon.setString(6, donHang.getId()); // DonHangid
+            psHoaDon.setString(7, thanhToan.getTrangthai());
             psHoaDon.executeUpdate();
 
             // 6. COMMIT TRANSACTION
@@ -122,6 +123,57 @@ public class HoaDonDAO extends DAO{
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
+    }
+    public boolean HuyDonHang(HoaDon hoaDon) {
+        DonHang donHang = hoaDon.getDonHang();
+        List<DonHangChiTiet> chiTietList = donHang.getListdonhang();
+
+        String sqlUpdateDonHang = "UPDATE tblDonHang SET trangthai = ? WHERE id = ?";
+        String sqlUpdateHoaDon = "UPDATE tblHoaDon SET ghichu = ? WHERE DonHangid = ?";
+        String sqlRestoreStock = "UPDATE tblSanPham SET tonkho = tonkho + ? WHERE id = ?";
+
+        try {
+            // 1. BẮT ĐẦU TRANSACTION
+            con.setAutoCommit(false);
+
+            // 2. CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG -> "Đã hủy"
+            PreparedStatement psDonHang = con.prepareStatement(sqlUpdateDonHang);
+            psDonHang.setString(1, "Đã hủy");
+            psDonHang.setString(2, donHang.getId());
+            psDonHang.executeUpdate();
+
+            // 3. CẬP NHẬT HÓA ĐƠN -> "Đã hủy/Chờ hoàn tiền"
+            PreparedStatement psHoaDon = con.prepareStatement(sqlUpdateHoaDon);
+            psHoaDon.setString(1, "Đơn hàng đã hủy, chờ hoàn tiền.");
+            psHoaDon.setString(2, donHang.getId());
+            psHoaDon.executeUpdate();
+
+            // 4. HOÀN TRẢ TỒN KHO
+            for (DonHangChiTiet item : chiTietList) {
+                PreparedStatement psRestoreStock = con.prepareStatement(sqlRestoreStock);
+                psRestoreStock.setInt(1, item.getSoluong());
+                psRestoreStock.setString(2, item.getSanpham().getId());
+                psRestoreStock.executeUpdate();
+            }
+
+            // 5. COMMIT TRANSACTION
+            con.commit();
+            System.out.println("Hủy Đơn Hàng (Transaction) thành công!");
+            return true;
+
+        } catch (SQLException e) {
+            // 6. ROLLBACK NẾU CÓ LỖI
+            e.printStackTrace();
+            try {
+                if (con != null) con.rollback();
+            } catch (SQLException ex) { ex.printStackTrace(); }
+            return false;
+        } finally {
+            // 7. BẬT LẠI AUTO-COMMIT
+            try {
+                if (con != null) con.setAutoCommit(true);
+            } catch (SQLException e) { e.printStackTrace(); }
         }
     }
 }

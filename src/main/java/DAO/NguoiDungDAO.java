@@ -19,7 +19,6 @@ public class NguoiDungDAO extends DAO {
         String insertNguoiDung = "INSERT INTO NguoiDung(id, ten, email, sdt, matkhau, ghichu, ngaysinh, vaitro) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         String insertKhachHang = "INSERT INTO tblKhachHang(NguoiDungid, diemtichluy) VALUES (?, 0)";
         String insertGioHang = "INSERT INTO tblGioHang(id, tongsanpham, KhachHangid) VALUES (?, 0, ?)";
-        String insertSanPhamYeu = "INSERT INTO tblSanPhamYeuThich(id, tongsanpham) VALUES (?, 0)";
 
         try {
             con.setAutoCommit(false); //  Bắt đầu transaction
@@ -48,19 +47,13 @@ public class NguoiDungDAO extends DAO {
             psGH.setString(2, n.getId());
             psGH.executeUpdate();
 
-            // 4️ Tạo danh sách sản phẩm yêu thích
-            String yeuThichId = UUID.randomUUID().toString();
-            PreparedStatement psYT = con.prepareStatement(insertSanPhamYeu);
-            psYT.setString(1, yeuThichId);
-            psYT.executeUpdate();
-
-            con.commit(); //  Commit toàn bộ transaction
+            con.commit();
             System.out.println("Tạo người dùng, khách hàng, giỏ hàng, yêu thích thành công!");
             return true;
 
         } catch (SQLException e) {
             try {
-                con.rollback(); //  Hủy nếu có lỗi
+                con.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -75,7 +68,6 @@ public class NguoiDungDAO extends DAO {
         }
     }
 
-    //  Kiểm tra trùng email hoặc sđt
     public boolean CheckTonTai(String email, String sdt) {
         String sql = "SELECT * FROM NguoiDung WHERE email = ? OR sdt = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {

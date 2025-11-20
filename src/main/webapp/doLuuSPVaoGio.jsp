@@ -33,7 +33,7 @@
     ghct.setSoluong(soLuong);
 
     GioHangDAO dao = new GioHangDAO();
-    boolean ok = dao.ThemSPvaoGio(ghct, kh.getGhid());
+    boolean ok = dao.ThemSPvaoGio(ghct, kh.getGioHang().getId());
 
     if (ok) {
         out.println("<script>alert('Thêm sản phẩm thành công!'); location.href='GDGioHang.jsp';</script>");

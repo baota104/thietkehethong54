@@ -1,5 +1,6 @@
 package DAO;
 
+import model.GioHang;
 import model.KhachHang;
 import java.sql.*;
 import java.util.List;
@@ -40,7 +41,9 @@ public class KhachHangDAO extends DAO {
                 );
 
                 kh.setDiachiList(diaChiDAO.getDiaChi(idNguoiDung));
-                kh.setGhid(getIDGH(idNguoiDung));
+                GioHang gh = new GioHang();
+                gh.setId(getIDGH(idNguoiDung));
+                kh.setGioHang(gh);
                 return kh;
             }
         } catch (SQLException e) {

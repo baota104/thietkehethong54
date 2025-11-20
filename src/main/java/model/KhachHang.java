@@ -6,24 +6,26 @@ import java.util.List;
 public class KhachHang extends NguoiDung {
     private int diemtichluy;
     private List<Diachi> diachiList;
-    private String ghid;
+    private GioHang gioHang;
 
 
     public KhachHang(String id, String vaitro, String ten, String sdt, String email, String password, String ghichu, Date ngaysinh,int diemtichluy) {
         super(id, vaitro, ten, sdt, email, password, ghichu, ngaysinh);
         this.diemtichluy = diemtichluy;
     }
+
+    public GioHang getGioHang() {
+        return gioHang;
+    }
+
+    public void setGioHang(GioHang gioHang) {
+        this.gioHang = gioHang;
+    }
+
     public KhachHang(){
 
     }
 
-    public String getGhid() {
-        return ghid;
-    }
-
-    public void setGhid(String ghid) {
-        this.ghid = ghid;
-    }
 
     public int getDiemtichluy() {
         return diemtichluy;

@@ -1,7 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+
 <html>
 <head>
-    <title>Đăng nhập</title>
+    <title>Giao diện nhân viên</title>
     <style>
         body { font-family: Arial; margin: 30px; background: #fafafa; }
         .container { width: 400px; margin: auto; background: white; padding: 20px; border: 1px solid #ccc; border-radius: 6px; }
@@ -13,18 +14,9 @@
 <body>
 <div class="container">
     <h2>Đăng nhập</h2>
-    <form action="doDangNhap.jsp" method="post">
-        <label>Số điện thoại:</label>
-        <input type="text" name="sdt" required><br><br>
-
-        <label>Mật khẩu:</label>
-        <input type="password" name="matkhau" required><br><br>
-
-        <button type="submit">Đăng nhập</button>
-    </form>
-    <br>
-    <a href="GDDangKi.jsp">Chưa có tài khoản? Đăng ký ngay</a>
-    </form>
+    <a href="GDGiaoHangChoKhach.jsp">
+        <button style="background-color: #059669;">Giao hàng</button>
+    </a>
 </div>
 </body>
 </html>

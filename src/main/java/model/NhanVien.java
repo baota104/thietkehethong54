@@ -8,7 +8,9 @@ public class NhanVien extends NguoiDung {
         super(id, vaitro, ten, sdt, email, password, ghichu, ngaysinh);
         this.vitri = vitri;
     }
+    public NhanVien(){
 
+    }
     public String getVitri() {
         return vitri;
     }

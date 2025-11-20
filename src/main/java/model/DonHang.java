@@ -4,7 +4,7 @@ import java.sql.Date;
 import java.util.List;
 
 public class DonHang {
-    private String id,trangthai,ghichu,DiaChiGiaoHang;
+    private String id,trangthai,ghichu,DiaChiGiaoHang,ttthanhtoan;
     private Date thoigiandukiengiao,ngaydat;
     private float tongtien,ship,tongkhuyenmai;
     private List<DonHangChiTiet> listdonhang;
@@ -28,6 +28,14 @@ public class DonHang {
     }
     public DonHang(){
 
+    }
+
+    public String getTtthanhtoan() {
+        return ttthanhtoan;
+    }
+
+    public void setTtthanhtoan(String ttthanhtoan) {
+        this.ttthanhtoan = ttthanhtoan;
     }
 
     public String getDiaChiGiaoHang() {

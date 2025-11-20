@@ -1,14 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.*, model.*, DAO.*" %>
+<%@ page import="java.sql.Date" %>
 <%
     KhachHang kh = (KhachHang) session.getAttribute("khachhang");
-    if (kh == null) {
-        response.sendRedirect("GDDangNhap.jsp");
-        return;
-    }
-
-    // Lấy giỏ hàng từ session hoặc database
     GioHang gh = (GioHang) session.getAttribute("giohang");
+
     List<GioHangChiTiet> gioHang = gh.getGioHangChiTiet();
     List<DonHangChiTiet> donHangChiTiets = new ArrayList<>();
     double tongTien = 0;
@@ -21,15 +17,12 @@
     double tongThanhToan = tongTien + phiShip;
 
     // Lấy các thông tin từ parameter
-    String sdtGiaoHang = request.getParameter("sdt") != null ? request.getParameter("sdt") : (kh.getSdt() != null ? kh.getSdt() : "");
+    String sdtGiaoHang = request.getParameter("sdt") != null ? request.getParameter("sdt") :  kh.getSdt();
     String tenGiaoHang = request.getParameter("ten") != null ? request.getParameter("ten") : kh.getTen();
     String emailGiaoHang = request.getParameter("email") != null ? request.getParameter("email") : kh.getEmail();
     String hinhThucNhanHang = request.getParameter("hinhThucNhanHang") != null ? request.getParameter("hinhThucNhanHang") : "Giao tới nhà";
     String hinhThucThanhToan = request.getParameter("hinhThucThanhToan") != null ? request.getParameter("hinhThucThanhToan") : "Chuyển khoản qua ngân hàng";
     String diaChiMoi = request.getParameter("diaChiMoi") != null ? request.getParameter("diaChiMoi") : "";
-
-    // --- Bổ sung logic (từ đầu file) để lấy địa chỉ mới ---
-    // (Đoạn này cần đặt ở đầu file GDThanhToan.jsp, nhưng tôi đưa vào đây để bạn thấy logic)
 
     // Lấy ID địa chỉ mới nếu vừa được thêm từ doThemDiaChi.jsp
     String newAddressId = request.getParameter("newAddressId");
@@ -57,18 +50,50 @@
 
     // Tạo đối tượng DonHang và lưu vào session
     KhachHang kh1 = new KhachHang();
+    kh1.setId(kh.getId());
     kh1.setSdt(sdtGiaoHang);
     kh1.setTen(tenGiaoHang);
     kh1.setEmail(emailGiaoHang);
+
+    // xử lí thời gian giao dự kiến
+    // 1. Lấy ngày giờ đặt hàng (hiện tại)
+    java.util.Date currentDate_util = new java.util.Date(); // Đây là java.util.Date
+    java.sql.Date currentDate_sql = new java.sql.Date(currentDate_util.getTime()); // Đây là java.sql.Date
+
+    java.util.Calendar c = java.util.Calendar.getInstance();
+    c.setTime(currentDate_util);
+
+    // 2. TÍNH THỜI GIAN GIAO HÀNG DỰ KIẾN (Logic mới)
+    int currentHour = c.get(java.util.Calendar.HOUR_OF_DAY); // Lấy giờ 24H
+
+    // Kiểm tra giờ cao điểm (16h và 17h, tức là 16:00 đến 17:59)
+    if (currentHour >= 16 && currentHour < 18) {
+        c.add(java.util.Calendar.HOUR_OF_DAY, 2);
+    } else {
+        c.add(java.util.Calendar.HOUR_OF_DAY, 1);
+    }
+
+    // Lấy thời gian giao hàng dự kiến (vẫn là java.util.Date)
+    java.util.Date estimatedDeliveryTime_util = c.getTime();
+
+    // CHUYỂN ĐỔI sang java.sql.Date
+    java.sql.Date estimatedDeliveryTime_sql = new java.sql.Date(estimatedDeliveryTime_util.getTime());
+
+    // 3. Tạo đối tượng NhanVien giao hàng (theo yêu cầu)
+    NhanVien nvGiaoHang = new NhanVien();
+    nvGiaoHang.setId("U008"); // ID Nhân viên giao hàng cứng chỉ dùng trong demo
+
     DonHang donHang = new DonHang();
     donHang.setId("DH_" + UUID.randomUUID());
     donHang.setKhachHang(kh1);
     donHang.setListdonhang(donHangChiTiets);
     donHang.setTongtien((float) tongTien);
+    donHang.setNhanVien(nvGiaoHang);
     donHang.setShip((float) phiShip);
     donHang.setTongkhuyenmai(0);
     donHang.setTrangthai("Chờ thanh toán");
     donHang.setNgaydat(new java.sql.Date(new java.util.Date().getTime()));
+    donHang.setThoigiandukiengiao((Date) estimatedDeliveryTime_sql);
     donHang.setDiaChiGiaoHang(diaChiGiaoHang);
     donHang.setGhichu("Hình thức nhận: " + hinhThucNhanHang + ", Hình thức thanh toán: " + hinhThucThanhToan);
 
@@ -94,7 +119,6 @@
 <head>
     <title>Thanh Toán</title>
     <style>
-        /* CSS giữ nguyên như trước... */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
@@ -479,20 +503,13 @@
                             Bạn chưa có địa chỉ nào.
                         </div>
                         <% } %>
-
-                        <!-- Nút thêm địa chỉ mới (luôn hiển thị, chuyển hướng trực tiếp) -->
                         <a href="GDThemDiaChi.jsp" class="btn-add-address" style="text-decoration: none; display: inline-block; margin-top: 10px;">
                             + Thêm Địa Chỉ Mới
                         </a>
 
-                        <!--
-                            XÓA BỎ <div id="newAddressSection" ...>
-                            (Form tại chỗ đã bị xóa bỏ)
-                        -->
                     </div>
                 </div>
 
-                <!-- Hình thức thanh toán -->
                 <div class="section">
                     <h3>Hình thức thanh toán</h3>
                     <div class="payment-options">
@@ -516,7 +533,6 @@
                 </button>
             </div>
 
-            <!-- Cột phải: Thông tin đơn hàng -->
             <div class="right-column">
                 <div class="section">
                     <h3>Thông tin đơn hàng</h3>

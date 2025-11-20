@@ -10,13 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class SanPhamDAO extends DAO {
-    private static final String SEARCH_BY_NAME = "SELECT * FROM tblSanPham WHERE ten LIKE ?";
-    private static final String FILTER_BY_CATEGORY = """
-        SELECT sp.* FROM tblSanPham sp
-        JOIN tblTheLoai tl ON sp.TheLoaiid = tl.id
-        WHERE tl.ten LIKE ?;
-    """;
-
     public SanPhamDAO() {
         super(); // Gọi constructor của lớp cha để đảm bảo có kết nối
     }
@@ -84,6 +77,7 @@ public class SanPhamDAO extends DAO {
     }
 
     public List<SanPham> searchByName(String keyword) {
+        String SEARCH_BY_NAME = "SELECT * FROM tblSanPham WHERE ten LIKE ?";
         List<SanPham> list = new ArrayList<>();
         try (PreparedStatement ps = con.prepareStatement(SEARCH_BY_NAME)) {
             ps.setString(1, "%" + keyword + "%");
@@ -99,6 +93,11 @@ public class SanPhamDAO extends DAO {
 
     // --- Lọc theo thể loại ---
     public List<SanPham> filterByCategory(String category) {
+        String FILTER_BY_CATEGORY = """
+        SELECT sp.* FROM tblSanPham sp
+        JOIN tblTheLoai tl ON sp.TheLoaiid = tl.id
+        WHERE tl.ten LIKE ?;
+    """;
         List<SanPham> list = new ArrayList<>();
         try (PreparedStatement ps = con.prepareStatement(FILTER_BY_CATEGORY)) {
             ps.setString(1, "%" + category + "%");

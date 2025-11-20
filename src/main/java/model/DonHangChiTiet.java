@@ -15,6 +15,9 @@ public class DonHangChiTiet {
         this.soluong = soluong;
         this.sanpham = sanpham;
     }
+    public DonHangChiTiet() {
+
+    }
 
     public String getId() {
         return id;

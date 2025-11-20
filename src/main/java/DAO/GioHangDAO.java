@@ -187,26 +187,6 @@ public class GioHangDAO extends DAO {
             return false;
         }
     }
-    public String getID(String id){
-        try {
-            // 1️ Kiểm tra giỏ hàng của khách có chưa
-            String gioHangId = null;
-            String sqlCheckCart = "SELECT id FROM tblGioHang WHERE KhachHangid = ?";
-            PreparedStatement ps1 = con.prepareStatement(sqlCheckCart);
-            ps1.setString(1, id);
-            ResultSet rs1 = ps1.executeQuery();
 
-            if (rs1.next()) {
-                gioHangId = rs1.getString("id");
-                return gioHangId;
-            } else {
-                return gioHangId;
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
 }

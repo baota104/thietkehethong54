@@ -10,7 +10,7 @@
     KhachHang khachHangSession = (KhachHang) session.getAttribute("khachhang");
     boolean loggedIn = (khachHangSession != null);
     if (loggedIn) {
-        System.out.println("DEBUG: Khách hàng đang đăng nhập: " + khachHangSession.getGhid());
+        System.out.println("DEBUG: Khách hàng đang đăng nhập: " + khachHangSession.getGioHang().getId());
     }
     List<SanPham> products = Collections.emptyList();
     SanPhamDAO sanPhamDAO = new SanPhamDAO();

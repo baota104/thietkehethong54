@@ -1,25 +1,22 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.*, model.*, DAO.*" %>
 <%
-    // 1. KIỂM TRA SESSION (Chỉ để hiển thị)
     KhachHang kh = (KhachHang) session.getAttribute("khachhang");
     DonHang donHang = (DonHang) session.getAttribute("donhang");
     HoaDon hoaDon = (HoaDon) session.getAttribute("hoadon");
     ThanhToan thanhToan = (ThanhToan) session.getAttribute("thanhtoan");
+    thanhToan.setTrangthai("Đã thanh toán");
+
 
     if (kh == null || donHang == null || hoaDon == null || thanhToan == null) {
         response.sendRedirect("GDThanhToan.jsp?msg=Phiên làm việc hết hạn.");
         return;
     }
 
-    // 2. XÓA BỎ LOGIC XỬ LÝ POST
-    // (Toàn bộ khối "if ('true'.equals(request.getParameter...))" đã được xóa
-    // và chuyển sang doLuuHoaDon.jsp)
 %>
 <html>
 <head>
     <title>Thanh Toán QR Code</title>
-    <!-- (Toàn bộ CSS giữ nguyên) -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -210,7 +207,6 @@
         <p>Quét mã QR để hoàn tất thanh toán</p>
     </div>
 
-    <!-- Thông tin đơn hàng (Hiển thị) -->
     <div class="order-info">
         <div class="info-row">
             <span class="info-label">Mã đơn hàng:</span>
@@ -230,12 +226,10 @@
         </div>
     </div>
 
-    <!-- Số tiền thanh toán (Hiển thị) -->
     <div class="amount">
         <%= String.format("%,.0f", thanhToan.getTongtien()) %> VNĐ
     </div>
 
-    <!-- Mã QR Code (Hiển thị) -->
     <div class="qr-section">
         <div class="qr-code">
             <div style="text-align: center;">
@@ -252,9 +246,8 @@
         </div>
     </div>
 
-    <!-- Hướng dẫn thanh toán (Hiển thị) -->
     <div class="instructions">
-        <h4>📱 Hướng dẫn thanh toán:</h4>
+        <h4> Hướng dẫn thanh toán:</h4>
         <ol>
             <li>Mở ứng dụng ngân hàng trên điện thoại</li>
             <li>Chọn tính năng "Quét mã QR"</li>
@@ -281,14 +274,7 @@
         <div class="spinner"></div>
         <p style="color: #6b7280; margin-top: 10px;">Đang xử lý thanh toán...</p>
     </div>
-
-    <!-- Nút hành động (ĐÃ SỬA LẠI LOGIC) -->
     <div class="btn-group">
-        <!--
-          SỬA LỖI LOGIC:
-          1. action trỏ đến "doLuuHoaDon.jsp" (Controller xử lý).
-          2. Xóa bỏ input "thanhToanThanhCong" (vì không cần nữa).
-        -->
         <form method="post" action="doLuuHoaDon.jsp" style="flex: 1;" onsubmit="showLoading()">
             <button type="submit" class="btn btn-success"> Đã Thanh Toán</button>
         </form>
@@ -298,9 +284,7 @@
     </div>
 </div>
 
-<!-- (Toàn bộ JavaScript giữ nguyên) -->
 <script>
-    // Đếm ngược thời gian
     let timeLeft = 5 * 60; // 5 phút
     const countdownElement = document.getElementById('countdown');
 
