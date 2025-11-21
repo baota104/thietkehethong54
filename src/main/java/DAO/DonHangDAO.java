@@ -41,7 +41,7 @@ public class DonHangDAO extends DAO {
                     dh.setTrangthai(rsDonHang.getString("trangthai"));
                     dh.setDiaChiGiaoHang(rsDonHang.getString("diachigiaohang"));
                     dh.setGhichu(rsDonHang.getString("ghichu"));
-                    dh.setThoigiandukiengiao(rsDonHang.getDate("thoigiandukien"));
+                    dh.setThoigiandukiengiao(rsDonHang.getTimestamp("thoigiandukien"));
                     dh.setTtthanhtoan(rsDonHang.getString("TT_THANHTOAN"));
 
                     // Map thông tin khách hàng

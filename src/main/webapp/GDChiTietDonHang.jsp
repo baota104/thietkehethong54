@@ -5,8 +5,8 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.Calendar" %>
 <%
-  // --- GIỮ NGUYÊN LOGIC JAVA ---
   String maDon = request.getParameter("maDon");
   List<DonHang> listSession = (List<DonHang>)session.getAttribute("listDonHangChuaGiao");
 
@@ -26,16 +26,28 @@
   }
 
   NumberFormat currencyVal = NumberFormat.getInstance();
-  SimpleDateFormat dateFmt = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
+  String strNgayGiao = "Chưa xác định";
+  if (donHang.getThoigiandukiengiao() != null) {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(donHang.getThoigiandukiengiao());
+    int hour = cal.get(Calendar.HOUR_OF_DAY);
+    int minute = cal.get(Calendar.MINUTE);
+    String timeRange = "";
+    if (minute <= 30) {
+      timeRange = hour + "h - " + hour + "h30";
+    } else {
+      timeRange = hour + "h30 - " + (hour + 1) + "h";
+    }
+    SimpleDateFormat dateOnlyFmt = new SimpleDateFormat("dd/MM/yyyy");
+    String datePart = dateOnlyFmt.format(donHang.getThoigiandukiengiao());
+    strNgayGiao = timeRange + ", " + datePart;
+  }
 
   String trangThai = donHang.getTrangthai();
   KhachHang kh = donHang.getKhachHang();
-
   String tenKH = (kh != null) ? kh.getTen() : "---";
   String sdtKH = (kh != null) ? kh.getSdt() : "---";
   String strTongTien = currencyVal.format(donHang.getTongtien() + donHang.getShip()) + "đ";
-
-  String strNgayGiao = (donHang.getThoigiandukiengiao() != null) ? dateFmt.format(donHang.getThoigiandukiengiao()) : "Chưa xác định";
   String strThanhToan = (donHang.getTtthanhtoan() != null) ? donHang.getTtthanhtoan() : "Chưa rõ";
 
   boolean isMoi = trangThai.equals("Chờ xử lí") || trangThai.equals("Đã xác nhận");
@@ -159,10 +171,11 @@
       <div class="btn-container <%= isDangGiao ? "" : "disabled-area" %>" style="margin-top: 30px;">
         <% if (isDangGiao) { %>
 
-        <form action="GDThongBao.jsp" method="GET" class="inline-form">
+        <form action="doThayDoiTTDon.jsp" method="POST" class="inline-form" onsubmit="return confirm('Xác nhận đơn này đã giao thành công?');">
           <input type="hidden" name="maDon" value="<%= maDon %>">
           <input type="hidden" name="thaoTac" value="DaGiao">
           <input type="hidden" name="khachHangId" value="<%= donHang.getKhachHang().getId() %>">
+          <input type="hidden" name="ghiChu" value="Giao hàng thành công">
           <button type="submit">Đã giao</button>
         </form>
 

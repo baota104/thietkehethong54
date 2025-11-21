@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="container">
-    <h2>Đăng nhập</h2>
+    <h2>Giao diện chính NV </h2>
     <a href="GDGiaoHangChoKhach.jsp">
         <button style="background-color: #059669;">Giao hàng</button>
     </a>

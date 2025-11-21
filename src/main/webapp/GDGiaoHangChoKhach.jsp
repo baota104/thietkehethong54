@@ -5,21 +5,17 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
 <%
-    // 1. Kiểm tra session đăng nhập
     NhanVien nvSession = (NhanVien)session.getAttribute("nhanvien");
     if (nvSession == null) {
         response.sendRedirect("GDDangNhapNV.jsp");
         return;
     }
 
-    // 2. Lấy danh sách đơn hàng từ DAO
     DonHangDAO donHangDAO = new DonHangDAO();
     List<DonHang> listDonHang = donHangDAO.getDonHangByNV(nvSession.getId());
 
-    // 3. Lưu List vào Session
     session.setAttribute("listDonHangChuaGiao", listDonHang);
 
-    // 4. Phân loại đơn hàng
     List<DonHang> donMoiCanXacNhan = new ArrayList<>();
     List<DonHang> donDangGiao = new ArrayList<>();
 

@@ -1,18 +1,20 @@
 package model;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class DonHang {
     private String id,trangthai,ghichu,DiaChiGiaoHang,ttthanhtoan;
-    private Date thoigiandukiengiao,ngaydat;
+    private Date ngaydat;
+
     private float tongtien,ship,tongkhuyenmai;
     private List<DonHangChiTiet> listdonhang;
     private KhachHang khachHang;
     private NhanVien nhanVien;
     private MaGiamGia maGiamGia;
-
-    public DonHang(String id, String trangthai, String ghichu, Date thoigiandukiengiao, Date ngaydat, float tongtien, float ship, float tongkhuyenmai, List<DonHangChiTiet> listdonhang, KhachHang khachHang, NhanVien nhanVien, MaGiamGia maGiamGia) {
+    private Timestamp thoigiandukiengiao;
+    public DonHang(String id, String trangthai, String ghichu, Timestamp thoigiandukiengiao, Date ngaydat, float tongtien, float ship, float tongkhuyenmai, List<DonHangChiTiet> listdonhang, KhachHang khachHang, NhanVien nhanVien, MaGiamGia maGiamGia) {
         this.id = id;
         this.trangthai = trangthai;
         this.ghichu = ghichu;
@@ -70,11 +72,11 @@ public class DonHang {
         this.ghichu = ghichu;
     }
 
-    public Date getThoigiandukiengiao() {
+    public Timestamp getThoigiandukiengiao() {
         return thoigiandukiengiao;
     }
 
-    public void setThoigiandukiengiao(Date thoigiandukiengiao) {
+    public void setThoigiandukiengiao(Timestamp thoigiandukiengiao) {
         this.thoigiandukiengiao = thoigiandukiengiao;
     }
 

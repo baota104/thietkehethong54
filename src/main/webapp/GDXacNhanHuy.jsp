@@ -1,14 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="model.NhanVien" %>
 <%
-    // 1. Kiểm tra đăng nhập
-    NhanVien nvSession = (NhanVien)session.getAttribute("nhanvien");
-    if (nvSession == null) {
-        response.sendRedirect("GDDangNhap.jsp");
-        return;
-    }
-
-    // 2. Lấy tham số từ trang Chi tiết gửi sang
     String maDon = request.getParameter("maDon");
     String thaoTac = request.getParameter("thaoTac"); // "Huy" hoặc "ThatBai"
 
